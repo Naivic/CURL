@@ -1,0 +1,21 @@
+{
+    "name": "naivic/curl",
+    "description": "Naivic cURL envelope",
+    "keywords": ["cURL"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Naivic",
+            "email": "andrei.r715d@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Naivic\\": "src/Naivic"
+        }
+    },
+    "require": {
+        "php": ">=8.1"
+    }
+}
