@@ -19,6 +19,7 @@ Year: 1889
 Used https://restful-api.dev/ to illustrate functionality
 ```php
 $url = "https://api.restful-api.dev/objects";
+$hdr = [ "Content-Type: application/json" ];
 $hero = [
     "name" => "The Cat",
     "data" => [
@@ -27,7 +28,6 @@ $hero = [
     ],
 ];
 $curl = new \Naivic\CURL();
-$hdr = [ "Content-Type: application/json" ];
 
 # Puts The Cat to World
 $res = $curl->query( "POST", $url, $hero, $hdr );
