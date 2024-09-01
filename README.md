@@ -105,8 +105,9 @@ Array
 (
     [message] => Object with id = ff80818191ad7c2f0191af6b4a550247 has been deleted.
 )
+```
+Where is Alice? ("who the ... is Alice?")
 ```php
-# Where is Alice? ("who the ... is Alice?")
 $res = $curl->query( "GET", $url."/".$id, hdr: $hdr );
 ```
 $res->data:
