@@ -169,7 +169,7 @@ class CURL {
         $content_type = curl_getinfo( $this->ch, CURLINFO_CONTENT_TYPE );
 
         if( preg_match( "#application/json#", $content_type ) ) {
-            $this->data = json_decode( $this->body, true );
+            $this->data = (array)json_decode( $this->body, true );
             if( json_last_error() !== JSON_ERROR_NONE ) {
                 $this->err .= "\nJSON decode error: ".json_last_error();
             }
