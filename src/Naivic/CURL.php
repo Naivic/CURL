@@ -219,7 +219,7 @@ class CURL {
      *                                       "log"    => string with cURL query log
      *                                   "err"   => cURL errors
      */
-    public function query( string $method, string $url, $par = null, array $hdr = [] ) : CURL\Response {
+    public function query( string $method, string $url, $par = null, array $hdr = [] ) {
 
         // Reset common data
         $this->opts = $this->opts_def;
@@ -270,15 +270,13 @@ class CURL {
         $this->ch = null;
 
         // Return result
-        return new CURL\Response(
-            body:    $this->body,
-            data:    $this->data,
-            headers: $this->headers,
-            err:     $this->err,
-            opts:    $this->debug["opts"],
-            log:     $this->debug["log"],
-            info:    $this->debug["info"],
-        );
+        return [
+            "body" => $this->body,
+            "data" => $this->data,
+            "headers" => $this->headers,
+            "err" => $this->err,
+            "debug" => $this->debug,
+        ];
 
     }
 
