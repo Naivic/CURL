@@ -13,22 +13,26 @@ namespace Naivic;
  * @copyright 2024 Naivic
  */
 class CURL {
+
+
+    const CURLE_OPERATION_TIMEDOUT = 28;
+
     /**
      * @var array - cURL constant mnemonics
      */
-    private array $mnemonics = [];
+    protected array $mnemonics = [];
     /**
      * @var resource - cURL handler
      */
-    private $ch;
+    protected $ch;
     /**
      * @var array - cURL options
      */
-    private array $opts = [];
+    protected array $opts = [];
     /**
      * @var array - default cURL options
      */
-    private array $opts_def = [
+    protected array $opts_def = [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HEADER         => true,
         CURLOPT_BINARYTRANSFER => true,
@@ -39,47 +43,51 @@ class CURL {
     /**
      * @var string - query method
      */
-    private string $method = "";
+    protected string $method = "";
     /**
      * @var string - query URL
      */
-    private string $url = "";
+    protected string $url = "";
     /**
      * @var string|array - query parameters
      */
-    private $par = null;
+    protected $par = null;
     /**
      * @var array - query headers
      */
-    private array $hdr = [];
+    protected array $hdr = [];
     /**
      * @var string - host response body
      */
-    private string $body = "";
+    protected string $body = "";
     /**
      * @var ?array - host response data (decoded from body)
      */
-    private ?array $data = null;
+    protected ?array $data = null;
     /**
      * @var array - host response headers
      */
-    private array $headers = [];
+    protected array $headers = [];
     /**
      * @var int - host response headers total length
      */
-    private int $headers_len = 0;
+    protected int $headers_len = 0;
     /**
-     * @var string - cURL error
+     * @var string - cURL error text
      */
-    private $err  = "";
+    protected $err  = "";
+    /**
+     * @var int - cURL error number
+     */
+    protected $err_code  = 0;
     /**
      * @var array - debug data
      */
-    private array $debug = [];
+    protected array $debug = [];
     /**
      * @var resource - cURL log handler
      */
-    private $hlog = null;
+    protected $hlog = null;
     /**
      * @var bool - true for TLS connection
      */
@@ -102,11 +110,15 @@ class CURL {
      * @var string - client cert password
      */
     public string $ssl_pass = "";
+    /**
+     * @var int - total timeout in milliseconds, 0 (default) - infinite
+     */
+    public int $timeout_ms = 0;
 
     /**
      * Prepare parameters for request
      */
-    private function addParameters() {
+    protected function addParameters() {
 
         $pars = is_string( $this->par ) ? $this->par : "";
         $pars = ( is_array( $this->par ) && count( $this->par ) > 0 ) ? http_build_query($this->par) : $pars;
@@ -140,7 +152,7 @@ class CURL {
      *
      * @return void
      */
-    private function addSSL() {
+    protected function addSSL() {
 
         $this->opts += [
             CURLOPT_SSL_VERIFYPEER => $this->ssl,
@@ -160,11 +172,24 @@ class CURL {
     }
 
     /**
+     * Prepare Timeout parameter
+     *
+     * @return void
+     */
+    protected function addTimeout() {
+
+        $this->opts += [
+            CURLOPT_TIMEOUT_MS     => $this->timeout_ms,
+        ];
+
+    }
+
+    /**
      * Decode received data if Content-Type contains "application/json"
      *
      * @return void
      */
-    private function decode() {
+    protected function decode() {
 
         $content_type = curl_getinfo( $this->ch, CURLINFO_CONTENT_TYPE );
 
@@ -183,7 +208,7 @@ class CURL {
      * @param array $opt - cURL numeric options array ( number => value ) 
      * @return array     - cURL mnemonic options array ( mnemonic[number] => value )
      */
-    private function addMnemonics( $opt ) {
+    protected function addMnemonics( $opt ) {
         $res = [];
         foreach( $opt as $k => $v ) {
             if( $k != CURLOPT_HEADERFUNCTION ) {
@@ -240,6 +265,9 @@ class CURL {
         // Add SSL support if needed
         $this->addSSL();
 
+        // Add Timeout if needed
+        $this->addTimeout();
+
         // Prepare debug environment
         if( FALSE === ($this->hlog = fopen('php://temp', 'rw+')) )
             throw new \Exception( "Cannot initialize - temp stream was not opened" );
@@ -256,7 +284,9 @@ class CURL {
         // Make request and decode response
         $body = curl_exec( $this->ch );
         $this->body = substr($body, $this->headers_len);
+        $this->err_code = curl_errno( $this->ch );
         $this->err = curl_error( $this->ch );
+
         $this->decode();
 
         // Store debug info
@@ -275,7 +305,11 @@ class CURL {
             "data" => $this->data,
             "headers" => $this->headers,
             "err" => $this->err,
-            "debug" => $this->debug,
+            "err_code" => $this->err_code,
+            "timed_out" => $this->err_code == static::CURLE_OPERATION_TIMEDOUT,
+            "info" => $this->debug["info"],
+            "opts" => $this->debug["opts"],
+            "log" => $this->debug["log"],
         ];
 
     }

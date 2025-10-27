@@ -7,8 +7,8 @@ $url = "http://openlibrary.org/search.json";
 $needle = "Alice Wonderland";
 $curl = new \Naivic\CURL();
 $res = $curl->query( "GET", $url, [ "q" => $needle ] );
-echo "Total time: ".$res->info["total_time"]." sec\n";
-echo "Year: ".$res->data["docs"][0]["first_publish_year"]."\n";
+echo "Total time: ".$res["info"]["total_time"]." sec\n";
+echo "Year: ".$res["data"]["docs"][0]["first_publish_year"]."\n";
 ```
 result
 ```
@@ -35,9 +35,9 @@ $curl = new \Naivic\CURL();
 Ok, now put The Cat to World, and store ID from server response
 ```php
 $res = $curl->query( "POST", $url, $hero, $hdr );
-$id = $res->data["id"];
+$id = $res["data"]["id"];
 ```
-$res->data:
+$res["data"]:
 ```
 Array
 (
@@ -60,7 +60,7 @@ $hero["data"] = [
 ];
 $res = $curl->query( "PUT", $url."/".$id, $hero, $hdr );
 ```
-$res->data:
+$res["data"]:
 ```
 Array
 (
@@ -78,9 +78,9 @@ Array
 And... swap The Cat to Alice!
 ```php
 $res = $curl->query( "PATCH", $url."/".$id, ["name" => "Alice"], $hdr );
-print_r( $res->data );
+print_r( $res["data"] );
 ```
-$res->data:
+$res["data"]:
 ```
 Array
 (
@@ -99,7 +99,7 @@ Knock-knock, wake up Alice
 ```php
 $res = $curl->query( "DELETE", $url."/".$id, hdr: $hdr );
 ```
-$res->data:
+$res["data"]:
 ```
 Array
 (
@@ -110,7 +110,7 @@ Where is Alice? ("who the ... is Alice?")
 ```php
 $res = $curl->query( "GET", $url."/".$id, hdr: $hdr );
 ```
-$res->data:
+$res["data"]:
 ```
 Array
 (
